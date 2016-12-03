@@ -44,10 +44,7 @@ public class Launcher extends JFrame
         {
             public void actionPerformed(ActionEvent e)
             {
-            	if(input.getText().toLowerCase().equals("exit"))
-            	{
-            		closeLauncher();
-            	}
+            	launchShortcut(input.getText().toLowerCase());
             	//Clear out the input box text
             	input.setText("");
             }
@@ -57,6 +54,43 @@ public class Launcher extends JFrame
 	private void closeLauncher()
 	{
 		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+	}
+	
+	private void launchShortcut(String shortcut)
+	{
+		if(shortcut.equals("exit"))
+    	{
+			//Close application
+    		closeLauncher();
+    	}
+		else if(shortcut.equals("staging"))
+		{
+			//Switch to staging environment
+		}
+		else if(shortcut.equals("test"))
+		{
+			//Switch to test environment
+		}
+		else if(shortcut.equals("dev"))
+		{
+			//Switch to dev environment
+		}
+		else if(shortcut.equals("local"))
+		{
+			//Switch to local environment
+		}
+		else if(shortcut.equals("merge"))
+		{
+			//Launch merge sub-application
+		}
+		else if(shortcut.equals("add"))
+		{
+			//Launch add-shortcut functionality
+		}
+		else if(shortcut.equals("delete"))
+		{
+			//Launch delete-shortcut functionality
+		}
 	}
         
     public static class FrameDragListener extends MouseAdapter
