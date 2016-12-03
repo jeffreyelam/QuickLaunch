@@ -1,8 +1,11 @@
 package userinterfaces;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 
 @SuppressWarnings("serial")
 public class Launcher extends JFrame
@@ -12,7 +15,7 @@ public class Launcher extends JFrame
 		this.setUndecorated(true);
 
 		//Create text box
-		JTextField input = new JTextField();
+		final JTextField input = new JTextField();
 		Font font = new Font("SansSerif", Font.BOLD, 20);
 		input.setFont(font);
         input.setPreferredSize( new Dimension( 150, 30 ) );
@@ -36,6 +39,24 @@ public class Launcher extends JFrame
         this.pack();
         this.setLocationRelativeTo(null);
         this.setVisible(true);
+        
+        input.addActionListener(new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+            	if(input.getText().toLowerCase().equals("exit"))
+            	{
+            		closeLauncher();
+            	}
+            	//Clear out the input box text
+            	input.setText("");
+            }
+        });
+	}
+	
+	private void closeLauncher()
+	{
+		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 	}
         
     public static class FrameDragListener extends MouseAdapter
