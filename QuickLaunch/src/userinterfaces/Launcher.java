@@ -1,15 +1,24 @@
 package userinterfaces;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import objects.Shortcut;
+import objects.ShortcutDirectory;
 
 @SuppressWarnings("serial")
 public class Launcher extends JFrame
 {
+	
+	private ShortcutDirectory<String,Shortcut> directory;
 	public Launcher()
 	{
 		this.setUndecorated(true);
@@ -92,32 +101,4 @@ public class Launcher extends JFrame
 			//Launch delete-shortcut functionality
 		}
 	}
-        
-    public static class FrameDragListener extends MouseAdapter
-    {
-
-        private final JFrame frame;
-        private Point mouseDownCompCoords = null;
-
-        public FrameDragListener(JFrame frame)
-        {
-            this.frame = frame;
-        }
-
-        public void mouseReleased(MouseEvent e)
-        {
-            mouseDownCompCoords = null;
-        }
-
-        public void mousePressed(MouseEvent e)
-        {
-            mouseDownCompCoords = e.getPoint();
-        }
-
-        public void mouseDragged(MouseEvent e)
-        {
-            Point currCoords = e.getLocationOnScreen();
-            frame.setLocation(currCoords.x - mouseDownCompCoords.x, currCoords.y - mouseDownCompCoords.y);
-        }
-    }
 }
