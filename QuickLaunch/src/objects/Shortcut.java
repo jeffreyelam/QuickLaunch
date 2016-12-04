@@ -1,6 +1,9 @@
 package objects;
 
-public class Shortcut
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class Shortcut implements Serializable
 {
 	private String filePath;
 	private boolean isEnvironmentBased;

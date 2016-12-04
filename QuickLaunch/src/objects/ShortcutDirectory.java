@@ -17,6 +17,7 @@ public class ShortcutDirectory extends HashMap<String, Shortcut>
 	public void addShortcut(String shortcut, String filePath, boolean environmentBased)
 	{
 		this.put(shortcut, new Shortcut(filePath, environmentBased));
+		saveShortcutDirectory();
 	}
 	
 	public void saveShortcutDirectory()

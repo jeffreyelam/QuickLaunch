@@ -1,18 +1,18 @@
 package userinterfaces;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -32,6 +32,7 @@ public class Launcher extends JFrame
 		//Create text box
 		final JTextField input = new JTextField();
 		Font font = new Font("SansSerif", Font.BOLD, 20);
+		this.getRootPane().setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Color.BLACK));
 		input.setFont(font);
         input.setPreferredSize( new Dimension( 150, 30 ) );
         
@@ -39,7 +40,6 @@ public class Launcher extends JFrame
         
         //Create panel to hold the input box and label
         JPanel contentPane = new JPanel();
-        contentPane.setBackground(Color.BLACK);
         contentPane.setPreferredSize(new Dimension(225, 40));
         contentPane.add(envLabel);
         contentPane.add(input);
@@ -130,39 +130,35 @@ public class Launcher extends JFrame
 		{
 			//Launch add-shortcut functionality
 			final AddShortcut shortcutAdder = new AddShortcut();
-			this.directory.saveShortcutDirectory();
+			shortcutAdder.addWindowListener(new WindowAdapter()
+	        {
+	            @Override
+	            public void windowClosing(WindowEvent e)
+	            {
+	                addShortcutToDirectory(shortcutAdder.getShortcutText(),shortcutAdder.getPathText(),shortcutAdder.getEnvironmentCheck());
+	            }
+	        });
 		}
 		else if(shortcut.equals("delete"))
 		{
 			//Launch delete-shortcut functionality
 		}
+		else if(this.directory.get(shortcut) != null)
+		{
+			try
+			{
+				File file = new File(this.directory.get(shortcut).getFilePath());
+				Desktop.getDesktop().open(file);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 	
-	public static class FrameDragListener extends MouseAdapter
+	private void addShortcutToDirectory(String shortcut, String path, boolean environment)
 	{
-
-        private final JFrame frame;
-        private Point mouseDownCompCoords = null;
-
-        public FrameDragListener(JFrame frame)
-        {
-            this.frame = frame;
-        }
-
-        public void mouseReleased(MouseEvent e)
-        {
-            mouseDownCompCoords = null;
-        }
-
-        public void mousePressed(MouseEvent e)
-        {
-            mouseDownCompCoords = e.getPoint();
-        }
-
-        public void mouseDragged(MouseEvent e)
-        {
-            Point currCoords = e.getLocationOnScreen();
-            frame.setLocation(currCoords.x - mouseDownCompCoords.x, currCoords.y - mouseDownCompCoords.y);
-        }
-    }
+		this.directory.addShortcut(shortcut, path, environment);
+	}
 }

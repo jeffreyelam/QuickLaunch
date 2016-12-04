@@ -11,7 +11,6 @@ public class QuickLaunch
 	{
 		final Launcher shortcutLauncher = new Launcher();
 		JIntellitype.getInstance().registerHotKey(1, JIntellitype.MOD_CONTROL, (int)'J');
-		System.out.println(JIntellitype.isJIntellitypeSupported());
 		JIntellitype.getInstance().addHotKeyListener(new HotkeyListener()
 		{
             @Override
