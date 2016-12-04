@@ -129,12 +129,13 @@ public class Launcher extends JFrame
 		else if(shortcut.equals("add"))
 		{
 			//Launch add-shortcut functionality
+			final AddShortcut shortcutAdder = new AddShortcut();
+			this.directory.saveShortcutDirectory();
 		}
 		else if(shortcut.equals("delete"))
 		{
 			//Launch delete-shortcut functionality
 		}
-		this.directory.saveShortcutDirectory();
 	}
 	
 	public static class FrameDragListener extends MouseAdapter
