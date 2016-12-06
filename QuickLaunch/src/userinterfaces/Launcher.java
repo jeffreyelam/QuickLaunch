@@ -25,6 +25,9 @@ public class Launcher extends JFrame
 {
 	
 	private ShortcutDirectory directory;
+	private JLabel envLabel;
+	private String currEnvironment;
+	
 	public Launcher()
 	{
 		this.setUndecorated(true);
@@ -36,12 +39,12 @@ public class Launcher extends JFrame
 		input.setFont(font);
         input.setPreferredSize( new Dimension( 150, 30 ) );
         
-        JLabel envLabel = new JLabel("STAGING  ");
+        this.envLabel = new JLabel("STAGING  ");
         
         //Create panel to hold the input box and label
         JPanel contentPane = new JPanel();
         contentPane.setPreferredSize(new Dimension(225, 40));
-        contentPane.add(envLabel);
+        contentPane.add(this.envLabel);
         contentPane.add(input);
         this.setContentPane(contentPane);
 
@@ -65,6 +68,7 @@ public class Launcher extends JFrame
             }
         });
         
+        this.currEnvironment = "Y:\\";
         loadShortcutDirectory();
 	}
 	
@@ -109,18 +113,26 @@ public class Launcher extends JFrame
 		else if(shortcut.equals("staging"))
 		{
 			//Switch to staging environment
+			envLabel.setText("STAGING  ");
+			this.currEnvironment = "Y:\\";
 		}
 		else if(shortcut.equals("test"))
 		{
 			//Switch to test environment
+			envLabel.setText("TEST     ");
+			this.currEnvironment = "X:\\Test\\";
 		}
 		else if(shortcut.equals("dev"))
 		{
 			//Switch to dev environment
+			envLabel.setText("DEV      ");
+			this.currEnvironment = "X:\\Dev\\";
 		}
 		else if(shortcut.equals("local"))
 		{
 			//Switch to local environment
+			envLabel.setText("LOCAL    ");
+			this.currEnvironment = "C:\\inetpub\\wwwroot\\";
 		}
 		else if(shortcut.equals("merge"))
 		{
@@ -143,11 +155,39 @@ public class Launcher extends JFrame
 		{
 			//Launch delete-shortcut functionality
 		}
+		else if(this.directory.get(shortcut) != null && this.directory.get(shortcut).getEnviromentBased())
+		{
+			String envShortcut = this.directory.get(shortcut).getFilePath().replace("Y:\\", "");
+			envShortcut = envShortcut.replace("X:\\Test\\", "");
+			envShortcut = envShortcut.replace("X:\\Dev\\", "");
+			envShortcut = envShortcut.replace("C:\\inetpub\\wwwroot\\","");
+			try
+			{
+				File file = new File(this.currEnvironment + envShortcut);
+				Desktop.getDesktop().open(file);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
 		else if(this.directory.get(shortcut) != null)
 		{
 			try
 			{
 				File file = new File(this.directory.get(shortcut).getFilePath());
+				Desktop.getDesktop().open(file);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			try
+			{
+				File file = new File(this.currEnvironment + "mys_shared\\" + shortcut);
 				Desktop.getDesktop().open(file);
 			}
 			catch (IOException e)

@@ -85,7 +85,7 @@ public class AddShortcut extends JFrame
 	
 	public String getPathText()
 	{
-		return this.pathText.getText();
+		return this.pathText.getText().replaceAll("\"", "");
 	}
 	
 	public boolean getEnvironmentCheck()
