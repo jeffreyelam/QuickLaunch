@@ -4,7 +4,6 @@ import com.melloware.jintellitype.HotkeyListener;
 import com.melloware.jintellitype.IntellitypeListener;
 import com.melloware.jintellitype.JIntellitype;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -95,7 +94,7 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
 
     private void styleThisDialog() {
         setSize(275, 45);
-        setLocationRelativeTo((Component)null);
+        setLocationRelativeTo(null);
         setResizable(false);
         getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 4));
         setUndecorated(true);
@@ -120,7 +119,7 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
     }
 
     public void tryShortcut(String shortcut) {
-        if (shortcut.toLowerCase().equals("exit")) {
+        if (shortcut.equalsIgnoreCase("exit")) {
             try {
                 saveDirectory(this.shortCutMap);
             } catch (IOException iOException) {}
@@ -128,182 +127,232 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
             System.exit(0);
             closeDialog();
         } else if ((shortcut.split(":")).length <= 1) {
-            if (shortcut.toLowerCase().equals("admin")) {
-                if (this.environment.toLowerCase().equals("staging"))
+            if (shortcut.equalsIgnoreCase("admin")) {
+                if (this.environment.equalsIgnoreCase("staging"))
                     try {
                         this.shortCutMap.openDirectory("Y:/mys/admin.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("test"))
+                if (this.environment.equalsIgnoreCase("test"))
                     try {
                         this.shortCutMap.openDirectory("X:/Test/mys/admin.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("dev"))
+                if (this.environment.equalsIgnoreCase("dev"))
                     try {
                         this.shortCutMap.openDirectory("X:/Dev/mys/admin.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("local"))
+                if (this.environment.equalsIgnoreCase("local"))
                     try {
                         this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/admin.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-            } else if (shortcut.toLowerCase().equals("api")) {
-                if (this.environment.toLowerCase().equals("staging"))
+            } else if (shortcut.equalsIgnoreCase("api")) {
+                if (this.environment.equalsIgnoreCase("staging"))
                     try {
                         this.shortCutMap.openDirectory("Y:/mys/api.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("test"))
+                if (this.environment.equalsIgnoreCase("test"))
                     try {
                         this.shortCutMap.openDirectory("X:/Test/mys/api.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("dev"))
+                if (this.environment.equalsIgnoreCase("dev"))
                     try {
                         this.shortCutMap.openDirectory("X:/Dev/mys/api.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("local"))
+                if (this.environment.equalsIgnoreCase("local"))
                     try {
                         this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/api.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-            } else if (shortcut.toLowerCase().equals("gardner")) {
-                if (this.environment.toLowerCase().equals("staging"))
+            } else if (shortcut.equalsIgnoreCase("gardner")) {
+                if (this.environment.equalsIgnoreCase("staging"))
                     try {
                         this.shortCutMap.openDirectory("Y:/mys/gardner.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("test"))
+                if (this.environment.equalsIgnoreCase("test"))
                     try {
                         this.shortCutMap.openDirectory("X:/Test/mys/gardner.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("dev"))
+                if (this.environment.equalsIgnoreCase("dev"))
                     try {
                         this.shortCutMap.openDirectory("X:/Dev/mys/gardner.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("local"))
+                if (this.environment.equalsIgnoreCase("local"))
                     try {
                         this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/gardner.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-            } else if (shortcut.toLowerCase().equals("maint")) {
-                if (this.environment.toLowerCase().equals("staging"))
+            } else if (shortcut.equalsIgnoreCase("maint")) {
+                if (this.environment.equalsIgnoreCase("staging"))
                     try {
                         this.shortCutMap.openDirectory("Y:/mys/maint.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("test"))
+                if (this.environment.equalsIgnoreCase("test"))
                     try {
                         this.shortCutMap.openDirectory("X:/Test/mys/maint.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("dev"))
+                if (this.environment.equalsIgnoreCase("dev"))
                     try {
                         this.shortCutMap.openDirectory("X:/Dev/mys/maint.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("local"))
+                if (this.environment.equalsIgnoreCase("local"))
                     try {
                         this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/maint.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-            } else if (shortcut.toLowerCase().equals("mys")) {
-                if (this.environment.toLowerCase().equals("staging"))
+            } else if (shortcut.equalsIgnoreCase("mys")) {
+                if (this.environment.equalsIgnoreCase("staging"))
                     try {
                         this.shortCutMap.openDirectory("Y:/mys/mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("test"))
+                if (this.environment.equalsIgnoreCase("test"))
                     try {
                         this.shortCutMap.openDirectory("X:/Test/mys/mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("dev"))
+                if (this.environment.equalsIgnoreCase("dev"))
                     try {
                         this.shortCutMap.openDirectory("X:/Dev/mys/mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("local"))
+                if (this.environment.equalsIgnoreCase("local"))
                     try {
                         this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-            } else if (shortcut.toLowerCase().equals("mobile")) {
-                if (this.environment.toLowerCase().equals("staging"))
+            } else if (shortcut.equalsIgnoreCase("mobile")) {
+                if (this.environment.equalsIgnoreCase("staging"))
                     try {
                         this.shortCutMap.openDirectory("Y:/mys/mobile.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("test"))
+                if (this.environment.equalsIgnoreCase("test"))
                     try {
                         this.shortCutMap.openDirectory("X:/Test/mys/mobile.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("dev"))
+                if (this.environment.equalsIgnoreCase("dev"))
                     try {
                         this.shortCutMap.openDirectory("X:/Dev/mys/mobile.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("local"))
+                if (this.environment.equalsIgnoreCase("local"))
                     try {
                         this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/mobile.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-            } else if (shortcut.toLowerCase().equals("vts")) {
-                if (this.environment.toLowerCase().equals("staging"))
+            } else if (shortcut.equalsIgnoreCase("vts") || shortcut.equalsIgnoreCase("ids")) {
+                if (this.environment.equalsIgnoreCase("staging"))
                     try {
                         this.shortCutMap.openDirectory("Y:/mys/vts.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("test"))
+                if (this.environment.equalsIgnoreCase("test"))
                     try {
                         this.shortCutMap.openDirectory("X:/Test/mys/vts.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("dev"))
+                if (this.environment.equalsIgnoreCase("dev"))
                     try {
                         this.shortCutMap.openDirectory("X:/Dev/mys/vts.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("local"))
+                if (this.environment.equalsIgnoreCase("local"))
                     try {
                         this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/vts.mapyourshow.com/wwwroot/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-            } else if (shortcut.toLowerCase().equals("add")) {
+            } else if (shortcut.equalsIgnoreCase("cm")) {
+                if (this.environment.equalsIgnoreCase("staging"))
+                    try {
+                        this.shortCutMap.openDirectory("Y:/mys/cm.mapyourshow.com/wwwroot/");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                if (this.environment.equalsIgnoreCase("test"))
+                    try {
+                        this.shortCutMap.openDirectory("X:/Test/mys/cm.mapyourshow.com/wwwroot/");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                if (this.environment.equalsIgnoreCase("dev"))
+                    try {
+                        this.shortCutMap.openDirectory("X:/Dev/mys/cm.mapyourshow.com/wwwroot/");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                if (this.environment.equalsIgnoreCase("local"))
+                    try {
+                        this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/cm.mapyourshow.com/wwwroot/");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+            } else if (shortcut.equalsIgnoreCase("exh")) {
+                if (this.environment.equalsIgnoreCase("staging"))
+                    try {
+                        this.shortCutMap.openDirectory("Y:/mys/exh.mapyourshow.com/wwwroot/");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                if (this.environment.equalsIgnoreCase("test"))
+                    try {
+                        this.shortCutMap.openDirectory("X:/Test/mys/exh.mapyourshow.com/wwwroot/");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                if (this.environment.equalsIgnoreCase("dev"))
+                    try {
+                        this.shortCutMap.openDirectory("X:/Dev/mys/exh.mapyourshow.com/wwwroot/");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                if (this.environment.equalsIgnoreCase("local"))
+                    try {
+                        this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/exh.mapyourshow.com/wwwroot/");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+            } else if (shortcut.equalsIgnoreCase("add")) {
                 final NewShortcutBox shortcutData = new NewShortcutBox();
                 shortcutData.addShortcutButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
@@ -318,7 +367,7 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
                         }
                     }
                 });
-            } else if (shortcut.toLowerCase().equals("delete")) {
+            } else if (shortcut.equalsIgnoreCase("delete")) {
                 final DeleteShortcutBox shortcutDelete = new DeleteShortcutBox();
                 shortcutDelete.deleteShortcutButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
@@ -331,7 +380,7 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
                         }
                     }
                 });
-            } else if (shortcut.toLowerCase().equals("shortcuts")) {
+            } else if (shortcut.equalsIgnoreCase("shortcuts")) {
                 this.shortcutDisplay = new ShortcutListDisplay(this.shortCutMap.getShortcuts());
                 this.shortcutDisplay.list.addMouseListener(new MouseAdapter() {
                     public void mouseClicked(MouseEvent evt) {
@@ -347,42 +396,42 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
                     }
                 });
                 this.shortcutDisplay.display();
-            } else if (shortcut.toLowerCase().equals("local")) {
+            } else if (shortcut.equalsIgnoreCase("local")) {
                 this.environmentLabel.setText("LOCAL     ");
                 this.filePath = "C:/inetpub/wwwroot/mys_shared/";
                 this.environment = "local";
-            } else if (shortcut.toLowerCase().equals("dev")) {
+            } else if (shortcut.equalsIgnoreCase("dev")) {
                 this.environmentLabel.setText("DEV       ");
                 this.filePath = "X:/Dev/mys_shared/";
                 this.environment = "dev";
-            } else if (shortcut.toLowerCase().equals("test")) {
+            } else if (shortcut.equalsIgnoreCase("test")) {
                 this.environmentLabel.setText("TEST      ");
                 this.filePath = "X:/Test/mys_shared/";
                 this.environment = "test";
-            } else if (shortcut.toLowerCase().equals("staging")) {
+            } else if (shortcut.equalsIgnoreCase("staging")) {
                 this.environmentLabel.setText("STAGING   ");
                 this.filePath = "Y:/mys_shared/";
                 this.environment = "staging";
-            } else if (shortcut.toLowerCase().equals("core")) {
-                if (this.environment.toLowerCase().equals("staging"))
+            } else if (shortcut.equalsIgnoreCase("core")) {
+                if (this.environment.equalsIgnoreCase("staging"))
                     try {
                         this.shortCutMap.openDirectory("Y:/mys/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("test"))
+                if (this.environment.equalsIgnoreCase("test"))
                     try {
                         this.shortCutMap.openDirectory("X:/Test/mys/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("dev"))
+                if (this.environment.equalsIgnoreCase("dev"))
                     try {
                         this.shortCutMap.openDirectory("X:/Dev/mys/");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                if (this.environment.toLowerCase().equals("local"))
+                if (this.environment.equalsIgnoreCase("local"))
                     try {
                         this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/");
                     } catch (IOException e) {
@@ -397,7 +446,7 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
                 hideThis();
             } else {
                 try {
-                    this.shortCutMap.openDirectory(String.valueOf(this.filePath) + shortcut.toLowerCase());
+                    this.shortCutMap.openDirectory(this.filePath + shortcut.toLowerCase());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
