@@ -32,7 +32,7 @@ public class Directory extends HashMap<String, Shortcut> implements Serializable
         File directoryAsFile = new File(directoryPath);
         try {
             openFile(directoryAsFile);
-        } catch (IllegalArgumentException illegalArgumentException) {}
+        } catch (IllegalArgumentException ignored) {}
     }
 
     public void deleteShortcut(String shortcut) {
