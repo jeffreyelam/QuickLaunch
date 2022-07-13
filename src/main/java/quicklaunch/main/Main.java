@@ -15,6 +15,6 @@ public class Main {
         JIntellitype.getInstance();
         JIntellitype.getInstance().addIntellitypeListener(inBox);
         JIntellitype.getInstance().addHotKeyListener(inBox);
-        JIntellitype.getInstance().registerSwingHotKey(2, 2, 74);
+        JIntellitype.getInstance().registerHotKey(1, JIntellitype.MOD_CONTROL, 'J');
     }
 }

@@ -1,7 +1,6 @@
 package quicklaunch.guis;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import javax.swing.Box;
@@ -10,7 +9,6 @@ import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
 import quicklaunch.objects.Shortcut;
 import quicklaunch.objects.ShortcutListCellRenderer;
 
@@ -29,7 +27,7 @@ public class ShortcutListDisplay extends JPanel {
         this.list.setModel(this.model);
         this.list.setFixedCellHeight(75);
         this.list.setFixedCellWidth(370);
-        this.list.setCellRenderer((ListCellRenderer<? super Shortcut>)new ShortcutListCellRenderer());
+        this.list.setCellRenderer(new ShortcutListCellRenderer());
         JScrollPane jsp = new JScrollPane(this.list);
         add(jsp, "Center");
     }
@@ -40,7 +38,7 @@ public class ShortcutListDisplay extends JPanel {
         theBox.add(this);
         f.add(theBox);
         f.pack();
-        f.setLocationRelativeTo((Component)null);
+        f.setLocationRelativeTo(null);
         f.setVisible(true);
         f.setSize(410, 450);
         f.setResizable(false);
