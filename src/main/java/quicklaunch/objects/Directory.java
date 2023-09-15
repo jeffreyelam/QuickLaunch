@@ -11,15 +11,41 @@ import java.util.HashMap;
 import javax.swing.JOptionPane;
 
 public class Directory extends HashMap<String, Shortcut> implements Serializable {
+    public String localPath = "C:/inetpub/wwwroot/";
+
+    public String developmentPath = "//amznfsxbl1a2mn7.mysweb.net/share/Development/";
+
+    public String testPath = "//amznfsxsffi9ljm.mysweb.net/share/Test/";
+
+    public String stagingPath =  "//amznfsxpms4nnk0.mysweb.net/share/Staging/";
+
+    public String productionPath = "//amznfsxotr4sl7t.mysweb.net/share/Production/";
+
     public static void openFile(File file) throws IOException {
         Desktop dt = Desktop.getDesktop();
         dt.open(file);
     }
 
-    public void openShortcut(String shortcut) throws IOException {
+    public void openShortcut(String shortcut, String currentEnvironment) throws IOException {
         try {
-            if (get(shortcut).getFile() != null) {
-                openFile(get(shortcut).getFile());
+            if (get(shortcut).getFile() != null)
+            {
+                if(get(shortcut).getIsEnvironmentSpecific())
+                {
+                    String environmentSpecificPath = get(shortcut).getFile().getPath();
+                    environmentSpecificPath = environmentSpecificPath.replace("\\", "/");
+                    environmentSpecificPath = environmentSpecificPath.replace(this.productionPath, "");
+                    environmentSpecificPath = environmentSpecificPath.replace(this.stagingPath, "");
+                    environmentSpecificPath = environmentSpecificPath.replace(this.testPath, "");
+                    environmentSpecificPath = environmentSpecificPath.replace(this.developmentPath, "");
+                    environmentSpecificPath = environmentSpecificPath.replace(this.localPath, "");
+                    File environmentSpecificFile = new File(currentEnvironment + environmentSpecificPath);
+                    openFile(environmentSpecificFile);
+                }
+                else
+                {
+                    openFile(get(shortcut).getFile());
+                }
             } else if (get(shortcut).getURL() != null) {
                 openWebpage(get(shortcut).getURL());
             }
@@ -39,8 +65,8 @@ public class Directory extends HashMap<String, Shortcut> implements Serializable
         remove(shortcut);
     }
 
-    public void addShortCut(String shortCut, File file, URL url) {
-        Shortcut shortcutToAdd = new Shortcut(shortCut, file, url);
+    public void addShortCut(String shortCut, File file, URL url, Boolean isEnvironmentSpecific) {
+        Shortcut shortcutToAdd = new Shortcut(shortCut, file, url, isEnvironmentSpecific);
         put(shortCut, shortcutToAdd);
     }
 

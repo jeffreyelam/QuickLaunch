@@ -9,6 +9,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JCheckBox;
 
 public class NewShortcutBox extends JDialog {
     JTextField shortcut;
@@ -17,10 +18,13 @@ public class NewShortcutBox extends JDialog {
 
     JButton addShortcutButton;
 
+    JCheckBox isEnvironmentSpecific;
+
     public NewShortcutBox() {
         JPanel centerPanel = new JPanel(new FlowLayout(1, 0, 4));
         this.shortcutPath = new JTextField(12);
         this.shortcut = new JTextField(12);
+        this.isEnvironmentSpecific = new JCheckBox();
         this.addShortcutButton = new JButton("Add");
         Font bigFont = this.shortcutPath.getFont().deriveFont(0, 20.0F);
         this.shortcutPath.setFont(bigFont);
@@ -31,6 +35,8 @@ public class NewShortcutBox extends JDialog {
         centerPanel.add(this.shortcut);
         centerPanel.add(new JLabel("File Path:"));
         centerPanel.add(this.shortcutPath);
+        centerPanel.add(new JLabel("Environment Specific?"));
+        centerPanel.add(this.isEnvironmentSpecific);
         centerPanel.add(this.addShortcutButton);
         Box theBox = Box.createVerticalBox();
         theBox.add(centerPanel);

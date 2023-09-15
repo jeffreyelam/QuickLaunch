@@ -15,10 +15,14 @@ public class Shortcut implements Comparable, Serializable {
 
     String shortcut;
 
-    public Shortcut(String sCut, File fName, URL url) {
+    Boolean isEnvironmentSpecific;
+
+    public Shortcut(String sCut, File fName, URL url, Boolean isEnvironmentSpecific) {
         this.file = fName;
         this.shortcut = sCut;
         this.urlPath = url;
+        this.isEnvironmentSpecific = isEnvironmentSpecific;
+
     }
 
     public File getFile() {
@@ -33,13 +37,25 @@ public class Shortcut implements Comparable, Serializable {
         return this.shortcut;
     }
 
+    public Boolean getIsEnvironmentSpecific()
+    {
+        if(this.isEnvironmentSpecific != null)
+        {
+            return this.isEnvironmentSpecific;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public Icon getIcon() {
         Icon ico = FileSystemView.getFileSystemView().getSystemIcon(this.file);
         return ico;
     }
 
     public String toString() {
-        return "<html><i>" + this.shortcut + "</i><br><br>" + ((this.file != null) ? this.file.getAbsolutePath() : this.urlPath.toString()) + "<br></html>";
+        return "<html><i>" + this.shortcut + "</i><br><br>" + ((this.file != null) ? this.file.getAbsolutePath() : this.urlPath.toString()) + "<br><br>" + this.isEnvironmentSpecific.toString() + "<br></html>";
     }
 
     public int compareTo(Object o) {
