@@ -145,117 +145,15 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
             System.exit(0);
             closeDialog();
         } else if ((shortcut.split(":")).length <= 1) {
-            if (shortcut.equalsIgnoreCase("admin"))
-            {
-                if (this.environment.equalsIgnoreCase("local"))
-                {
-                    try
-                    {
-                        this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/MYS-ExhDashboard");
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        this.shortCutMap.openDirectory(this.filePath + "mys/admin.mapyourshow.com/wwwroot/");
-                    }
-                    catch (IOException e)
-                    {
-                         e.printStackTrace();
-                    }
-                }
-            }
-            else if (shortcut.equalsIgnoreCase("api"))
+            if (shortcut.equalsIgnoreCase("exh") && this.environment.equalsIgnoreCase("local"))
             {
                 try
                 {
-                    this.shortCutMap.openDirectory(this.filePath + "mys/api.mapyourshow.com/wwwroot/");
+                    this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/MYS-ExhDashboard");
                 }
                 catch (IOException e)
                 {
-                        e.printStackTrace();
-                }
-            }
-            else if (shortcut.equalsIgnoreCase("gardner"))
-            {
-                try
-                {
-                    this.shortCutMap.openDirectory(this.filePath + "mys/gardner.mapyourshow.com/wwwroot/");
-                }
-                catch (IOException e)
-                {
-                        e.printStackTrace();
-                }
-            }
-            else if (shortcut.equalsIgnoreCase("maint"))
-            {
-                try
-                {
-                    this.shortCutMap.openDirectory(this.filePath + "mys/maint.mapyourshow.com/wwwroot/");
-                }
-                catch (IOException e)
-                {
-                        e.printStackTrace();
-                }
-            }
-            else if (shortcut.equalsIgnoreCase("mys"))
-            {
-                try
-                {
-                    this.shortCutMap.openDirectory(this.filePath + "mys/mapyourshow.com/wwwroot/");
-                }
-                catch (IOException e)
-                {
-                        e.printStackTrace();
-                }
-            }
-            else if (shortcut.equalsIgnoreCase("mobile"))
-            {
-                try
-                {
-                    this.shortCutMap.openDirectory(this.filePath + "mys/mobile.mapyourshow.com/wwwroot/");
-                }
-                catch (IOException e)
-                {
-                        e.printStackTrace();
-                }
-            }
-            else if (shortcut.equalsIgnoreCase("vts") || shortcut.equalsIgnoreCase("ids"))
-            {
-                try
-                {
-                    this.shortCutMap.openDirectory(this.filePath + "mys/vts.mapyourshow.com/wwwroot/");
-                }
-                catch (IOException e)
-                {
-                        e.printStackTrace();
-                }
-            }
-            else if (shortcut.equalsIgnoreCase("cm"))
-            {
-                try
-                {
-                    this.shortCutMap.openDirectory(this.filePath + "mys/cm.mapyourshow.com/wwwroot/");
-                }
-                catch (IOException e)
-                {
-                        e.printStackTrace();
-                }
-            }
-            else if (shortcut.equalsIgnoreCase("exh"))
-            {
-                try
-                {
-                    this.shortCutMap.openDirectory(this.filePath + "mys/exh.mapyourshow.com/wwwroot/");
-                }
-                catch (IOException e)
-                {
-                        e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
             else if (shortcut.equalsIgnoreCase("add"))
