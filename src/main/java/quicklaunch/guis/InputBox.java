@@ -251,9 +251,13 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
                 hideThis();
             } else {
                 try {
-                    this.shortCutMap.openDirectory(this.filePath + shortcut.toLowerCase());
+                    this.shortCutMap.openDirectory(this.filePath + "MYS_Shared/" + shortcut.toLowerCase());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    try {
+                        this.shortCutMap.openDirectory(this.filePath + shortcut.toLowerCase());
+                    } catch (IOException xe) {
+                        xe.printStackTrace();
+                    }
                 }
             }
         }
