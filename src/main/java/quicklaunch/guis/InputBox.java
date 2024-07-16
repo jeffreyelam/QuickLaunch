@@ -89,7 +89,7 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
         this.stagingPath = "//amznfsxpms4nnk0.mysweb.net/share/Staging/";
         this.testPath = "//amznfsxsffi9ljm.mysweb.net/share/Test/";
         this.developmentPath = "//amznfsxbl1a2mn7.mysweb.net/share/Development/";
-        this.localPath = "C:/inetpub/wwwroot/";
+        this.localPath = "C:/inetpub/wwwroot/github/";
         this.filePath = this.stagingPath;
         centerPanel.add(this.environmentLabel);
         centerPanel.add(this.userInput);
@@ -221,7 +221,7 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
                 this.environmentLabel.setText("TEST      ");
                 this.filePath = this.testPath;
                 this.environment = "test";
-            } else if (shortcut.equalsIgnoreCase("staging")) {
+            } else if (shortcut.equalsIgnoreCase("staging") || shortcut.equalsIgnoreCase("stage")) {
                 this.environmentLabel.setText("STAGING   ");
                 this.filePath = this.stagingPath;
                 this.environment = "staging";
@@ -233,6 +233,15 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
                 this.environmentLabel.setText("IMTS   ");
                 this.filePath = this.imtsPath;
                 this.environment = "imts";
+            } else if (shortcut.equalsIgnoreCase("root"))
+            {
+                try
+                {
+                    this.shortCutMap.openDirectory(this.filePath);
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
             } else if (shortcut.equalsIgnoreCase("core"))
             {
                  try
@@ -251,7 +260,35 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
                 hideThis();
             } else {
                 try {
-                    this.shortCutMap.openDirectory(this.filePath + "MYS_Shared/" + shortcut.toLowerCase());
+                    if(this.environment.equalsIgnoreCase("local"))
+                    {
+                        boolean found = false;
+                        File sharedFolder = new File(this.filePath + "MYS-Shared/");
+                        File[] localSharedFolders = sharedFolder.listFiles();
+                        File showsFolder = new File(this.filePath + "MYS-Shows/");
+                        File[] localShowFolders = showsFolder.listFiles();
+
+                        for (File file : localSharedFolders) {
+                            // Output the path of each file
+                            if (file.getPath().toLowerCase().contains(shortcut.toLowerCase())) {
+                                this.shortCutMap.openDirectory(file.getPath());
+                                found = true;
+                            }
+                        }
+
+                        if (!found) {
+                            for (File file : localShowFolders) {
+                                // Output the path of each file
+                                if (file.getPath().toLowerCase().contains(shortcut.toLowerCase())) {
+                                    this.shortCutMap.openDirectory(file.getPath());
+                                    found = true;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        this.shortCutMap.openDirectory(this.filePath + "MYS_Shared/" + shortcut.toLowerCase());
+                    }
                 } catch (IOException e) {
                     try {
                         this.shortCutMap.openDirectory(this.filePath + shortcut.toLowerCase());
