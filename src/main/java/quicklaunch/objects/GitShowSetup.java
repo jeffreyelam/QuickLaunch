@@ -124,6 +124,18 @@ public class GitShowSetup {
 
     private static final String[] COPY_SUBFOLDERS = { "boothsales", "reporting", "showfiles" };
 
+    private static final String[] EXCLUDED_FOLDERS = { "invoices", "contracts" };
+
+    private static boolean isExcludedFolder(Path dir) {
+        String name = dir.getFileName().toString();
+        for (String excluded : EXCLUDED_FOLDERS) {
+            if (name.equalsIgnoreCase(excluded)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private String copyStagingFiles(String showId, String branchName, StatusListener listener)
             throws GitSetupException {
         String showSourceDir = this.stagingShowRoot + showId + "/";
@@ -152,6 +164,9 @@ public class GitShowSetup {
                     @Override
                     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
                             throws IOException {
+                        if (isExcludedFolder(dir)) {
+                            return FileVisitResult.SKIP_SUBTREE;
+                        }
                         Files.createDirectories(target.resolve(source.relativize(dir).toString()));
                         return FileVisitResult.CONTINUE;
                     }
