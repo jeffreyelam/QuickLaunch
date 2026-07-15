@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -26,11 +27,16 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import quicklaunch.objects.Directory;
+import quicklaunch.objects.GitShowSetup;
 import quicklaunch.objects.Shortcut;
+import java.awt.Desktop;
+import java.net.URI;
 
 public class InputBox extends JDialog implements IntellitypeListener, HotkeyListener {
     private static final long serialVersionUID = 1L;
@@ -61,6 +67,10 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
 
     public String productionPath;
 
+    public String gitRepoPath;
+
+    public String gitStagingSourcePath;
+
     private ShortcutListDisplay shortcutDisplay;
 
     private JPopupMenu menu;
@@ -70,6 +80,8 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
     private JMenuItem deleteItem;
 
     private JMenuItem exitItem;
+
+    private Desktop desk;
 
     public InputBox() {
         try {
@@ -90,7 +102,10 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
         this.testPath = "//amznfsxsffi9ljm.mysweb.net/share/Test/";
         this.developmentPath = "//amznfsxbl1a2mn7.mysweb.net/share/Development/";
         this.localPath = "C:/inetpub/wwwroot/github/";
+        this.gitRepoPath = this.localPath + "MYS-Shows";
+        this.gitStagingSourcePath = this.stagingPath + "MYS_Shared/";
         this.filePath = this.stagingPath;
+        this.desk = Desktop.getDesktop();
         centerPanel.add(this.environmentLabel);
         centerPanel.add(this.userInput);
         Box theBox = Box.createVerticalBox();
@@ -144,157 +159,205 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
             JIntellitype.getInstance().cleanUp();
             System.exit(0);
             closeDialog();
-        } else if ((shortcut.split(":")).length <= 1) {
-            if (shortcut.equalsIgnoreCase("exh") && this.environment.equalsIgnoreCase("local"))
+        }
+        else if (shortcut.equalsIgnoreCase("exh") && this.environment.equalsIgnoreCase("local"))
+        {
+            try
             {
-                try
-                {
-                    this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/MYS-ExhDashboard");
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
+                this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/MYS-ExhDashboard");
             }
-            else if (shortcut.equalsIgnoreCase("add"))
+            catch (IOException e)
             {
-                final NewShortcutBox shortcutData = new NewShortcutBox();
-                shortcutData.addShortcutButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (shortcutData.shortcut.getText().length() > 0 && shortcutData.shortcutPath.getText().length() > 0) {
-                            try
-                            {
-                                String newFilePath = shortcutData.shortcutPath.getText();
+                e.printStackTrace();
+            }
+        }
+        else if (shortcut.equalsIgnoreCase("add"))
+        {
+            final NewShortcutBox shortcutData = new NewShortcutBox();
+            shortcutData.addShortcutButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (shortcutData.shortcut.getText().length() > 0 && shortcutData.shortcutPath.getText().length() > 0) {
+                        try
+                        {
+                            String newFilePath = shortcutData.shortcutPath.getText();
 
 
-                                InputBox.this.shortCutMap.addShortCut(shortcutData.shortcut.getText(), (newFilePath.indexOf("http") < 0) ? new File(newFilePath.replace("\"", "")) : null, (newFilePath.indexOf("http") == 0) ? new URL(newFilePath) : null, shortcutData.isEnvironmentSpecific.isSelected());
-                                InputBox.this.saveDirectory(InputBox.this.shortCutMap);
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            shortcutData.closeDialog();
+                            InputBox.this.shortCutMap.addShortCut(shortcutData.shortcut.getText(), (newFilePath.indexOf("http") < 0) ? new File(newFilePath.replace("\"", "")) : null, (newFilePath.indexOf("http") == 0) ? new URL(newFilePath) : null, shortcutData.isEnvironmentSpecific.isSelected());
+                            InputBox.this.saveDirectory(InputBox.this.shortCutMap);
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
                         }
+                        shortcutData.closeDialog();
                     }
-                });
+                }
+            });
+        }
+        else if (shortcut.equalsIgnoreCase("delete"))
+        {
+            final DeleteShortcutBox shortcutDelete = new DeleteShortcutBox();
+            shortcutDelete.deleteShortcutButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (shortcutDelete.shortcut.getText().length() > 0 && InputBox.this.shortCutMap.keyExists(shortcutDelete.shortcut.getText())) {
+                        InputBox.this.shortCutMap.deleteShortcut(shortcutDelete.shortcut.getText());
+                        shortcutDelete.closeDialog();
+                        try {
+                            InputBox.this.saveDirectory(InputBox.this.shortCutMap);
+                        } catch (IOException iOException) {}
+                    }
+                }
+            });
+        }
+        else if ( shortcut.substring(0, Math.min(shortcut.length(), 3)).equalsIgnoreCase("ip:") )
+        {
+            // now we enter our URL that we want to open in our
+            // default browser
+            try {
+                desk.browse(new URI("https://www.whois.com/whois/" + shortcut.toLowerCase().replace("ip:","")));
+            } catch (Exception e) {
+                // do nothing
             }
-            else if (shortcut.equalsIgnoreCase("delete"))
-            {
-                final DeleteShortcutBox shortcutDelete = new DeleteShortcutBox();
-                shortcutDelete.deleteShortcutButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (shortcutDelete.shortcut.getText().length() > 0 && InputBox.this.shortCutMap.keyExists(shortcutDelete.shortcut.getText())) {
-                            InputBox.this.shortCutMap.deleteShortcut(shortcutDelete.shortcut.getText());
-                            shortcutDelete.closeDialog();
-                            try {
-                                InputBox.this.saveDirectory(InputBox.this.shortCutMap);
-                            } catch (IOException iOException) {}
-                        }
-                    }
-                });
-            }
-            else if (shortcut.equalsIgnoreCase("shortcuts"))
-            {
-                this.shortcutDisplay = new ShortcutListDisplay(this.shortCutMap.getShortcuts());
-                this.shortcutDisplay.list.addMouseListener(new MouseAdapter() {
-                    public void mouseClicked(MouseEvent evt) {
-                        String shortcutSelected = ((Shortcut)InputBox.this.shortcutDisplay.list.getSelectedValue()).getShortcut().toString().toLowerCase();
-                        if (evt.getClickCount() == 2) {
-                            if (SwingUtilities.isLeftMouseButton(evt))
-                                try {
-                                    InputBox.this.shortCutMap.openShortcut(shortcutSelected, InputBox.this.filePath);
-                                } catch (IOException|NullPointerException|IllegalArgumentException iOException) {}
-                        } else if (SwingUtilities.isRightMouseButton(evt)) {
-                            InputBox.this.createPopupMenu(shortcutSelected, evt);
-                        }
-                    }
-                });
-                this.shortcutDisplay.display();
-            } else if (shortcut.equalsIgnoreCase("local")) {
-                this.environmentLabel.setText("LOCAL     ");
-                this.filePath = this.localPath;
-                this.environment = "local";
-            } else if (shortcut.equalsIgnoreCase("dev")) {
-                this.environmentLabel.setText("DEV       ");
-                this.filePath = this.developmentPath;
-                this.environment = "dev";
-            } else if (shortcut.equalsIgnoreCase("test")) {
-                this.environmentLabel.setText("TEST      ");
-                this.filePath = this.testPath;
-                this.environment = "test";
-            } else if (shortcut.equalsIgnoreCase("staging") || shortcut.equalsIgnoreCase("stage")) {
-                this.environmentLabel.setText("STAGING   ");
-                this.filePath = this.stagingPath;
-                this.environment = "staging";
-            } else if (shortcut.equalsIgnoreCase("production")) {
-                this.environmentLabel.setText("**PROD**   ");
-                this.filePath = this.productionPath;
-                this.environment = "production";
-            } else if (shortcut.equalsIgnoreCase("imts")) {
-                this.environmentLabel.setText("IMTS   ");
-                this.filePath = this.imtsPath;
-                this.environment = "imts";
-            } else if (shortcut.equalsIgnoreCase("root"))
-            {
-                try
-                {
-                    this.shortCutMap.openDirectory(this.filePath);
-                } catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-            } else if (shortcut.equalsIgnoreCase("core"))
-            {
-                 try
-                 {
-                    this.shortCutMap.openDirectory(this.filePath + "mys/");
-                } catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-            } else if (this.shortCutMap.keyExists(shortcut.toLowerCase())) {
-                try {
-                    this.shortCutMap.openShortcut(shortcut.toLowerCase(), this.filePath);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                hideThis();
+        }
+        else if ( shortcut.substring(0, Math.min(shortcut.length(), 4)).equalsIgnoreCase("git:") )
+        {
+            final String showId = shortcut.substring(Math.min(shortcut.length(), 4)).trim();
+            if (!GitShowSetup.isValidShowId(showId)) {
+                JOptionPane.showMessageDialog(this, "Invalid show id '" + showId
+                        + "' - letters, numbers, dash and underscore only.",
+                        "git:", JOptionPane.ERROR_MESSAGE);
             } else {
-                try {
-                    if(this.environment.equalsIgnoreCase("local"))
-                    {
-                        boolean found = false;
-                        File sharedFolder = new File(this.filePath + "MYS-Shared/");
-                        File[] localSharedFolders = sharedFolder.listFiles();
-                        File showsFolder = new File(this.filePath + "MYS-Shows/");
-                        File[] localShowFolders = showsFolder.listFiles();
+                final GitStatusBox statusBox = new GitStatusBox();
+                statusBox.setStatus("Preparing show/" + showId + "...");
+                new SwingWorker<String, String>() {
+                    protected String doInBackground() throws Exception {
+                        GitShowSetup setup = new GitShowSetup(
+                                InputBox.this.gitRepoPath, InputBox.this.gitStagingSourcePath);
+                        return setup.setUpShow(showId, new GitShowSetup.StatusListener() {
+                            public void onStatus(String message) {
+                                publish(message);
+                            }
+                        });
+                    }
 
-                        for (File file : localSharedFolders) {
+                    protected void process(java.util.List<String> chunks) {
+                        statusBox.setStatus(chunks.get(chunks.size() - 1));
+                    }
+
+                    protected void done() {
+                        statusBox.closeDialog();
+                        try {
+                            JOptionPane.showMessageDialog(InputBox.this, get(),
+                                    "git:" + showId, JOptionPane.INFORMATION_MESSAGE);
+                        } catch (Exception e) {
+                            Throwable cause = (e.getCause() != null) ? e.getCause() : e;
+                            JOptionPane.showMessageDialog(InputBox.this, cause.getMessage(),
+                                    "git:" + showId + " failed", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }.execute();
+            }
+        }
+        else if (shortcut.equalsIgnoreCase("shortcuts"))
+        {
+            this.shortcutDisplay = new ShortcutListDisplay(this.shortCutMap.getShortcuts());
+            this.shortcutDisplay.list.addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent evt) {
+                    String shortcutSelected = ((Shortcut)InputBox.this.shortcutDisplay.list.getSelectedValue()).getShortcut().toString().toLowerCase();
+                    if (evt.getClickCount() == 2) {
+                        if (SwingUtilities.isLeftMouseButton(evt))
+                            try {
+                                InputBox.this.shortCutMap.openShortcut(shortcutSelected, InputBox.this.filePath);
+                            } catch (IOException|NullPointerException|IllegalArgumentException iOException) {}
+                    } else if (SwingUtilities.isRightMouseButton(evt)) {
+                        InputBox.this.createPopupMenu(shortcutSelected, evt);
+                    }
+                }
+            });
+            this.shortcutDisplay.display();
+        } else if (shortcut.equalsIgnoreCase("local")) {
+            this.environmentLabel.setText("LOCAL     ");
+            this.filePath = this.localPath;
+            this.environment = "local";
+        } else if (shortcut.equalsIgnoreCase("dev")) {
+            this.environmentLabel.setText("DEV       ");
+            this.filePath = this.developmentPath;
+            this.environment = "dev";
+        } else if (shortcut.equalsIgnoreCase("test")) {
+            this.environmentLabel.setText("TEST      ");
+            this.filePath = this.testPath;
+            this.environment = "test";
+        } else if (shortcut.equalsIgnoreCase("staging") || shortcut.equalsIgnoreCase("stage")) {
+            this.environmentLabel.setText("STAGING   ");
+            this.filePath = this.stagingPath;
+            this.environment = "staging";
+        } else if (shortcut.equalsIgnoreCase("production")) {
+            this.environmentLabel.setText("**PROD**   ");
+            this.filePath = this.productionPath;
+            this.environment = "production";
+        } else if (shortcut.equalsIgnoreCase("imts")) {
+            this.environmentLabel.setText("IMTS   ");
+            this.filePath = this.imtsPath;
+            this.environment = "imts";
+        } else if (shortcut.equalsIgnoreCase("root"))
+        {
+            try
+            {
+                this.shortCutMap.openDirectory(this.filePath);
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        } else if (shortcut.equalsIgnoreCase("core"))
+        {
+             try
+             {
+                this.shortCutMap.openDirectory(this.filePath + "mys/");
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        } else if (this.shortCutMap.keyExists(shortcut.toLowerCase())) {
+            try {
+                this.shortCutMap.openShortcut(shortcut.toLowerCase(), this.filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            hideThis();
+        } else {
+            try {
+                if(this.environment.equalsIgnoreCase("local"))
+                {
+                    boolean found = false;
+                    File sharedFolder = new File(this.filePath + "MYS-Shared/");
+                    File[] localSharedFolders = sharedFolder.listFiles();
+                    File showsFolder = new File(this.filePath + "MYS-Shows/");
+                    File[] localShowFolders = showsFolder.listFiles();
+
+                    for (File file : localSharedFolders) {
+                        // Output the path of each file
+                        if (file.getPath().toLowerCase().contains(shortcut.toLowerCase())) {
+                            this.shortCutMap.openDirectory(file.getPath());
+                            found = true;
+                        }
+                    }
+
+                    if (!found) {
+                        for (File file : localShowFolders) {
                             // Output the path of each file
                             if (file.getPath().toLowerCase().contains(shortcut.toLowerCase())) {
                                 this.shortCutMap.openDirectory(file.getPath());
                                 found = true;
                             }
                         }
-
-                        if (!found) {
-                            for (File file : localShowFolders) {
-                                // Output the path of each file
-                                if (file.getPath().toLowerCase().contains(shortcut.toLowerCase())) {
-                                    this.shortCutMap.openDirectory(file.getPath());
-                                    found = true;
-                                }
-                            }
-                        }
                     }
-                    else {
-                        this.shortCutMap.openDirectory(this.filePath + "MYS_Shared/" + shortcut.toLowerCase());
-                    }
-                } catch (IOException e) {
-                    try {
-                        this.shortCutMap.openDirectory(this.filePath + shortcut.toLowerCase());
-                    } catch (IOException xe) {
-                        xe.printStackTrace();
-                    }
+                }
+                else {
+                    this.shortCutMap.openDirectory(this.filePath + "MYS_Shared/" + shortcut.toLowerCase());
+                }
+            } catch (IOException e) {
+                try {
+                    this.shortCutMap.openDirectory(this.filePath + shortcut.toLowerCase());
+                } catch (IOException xe) {
+                    xe.printStackTrace();
                 }
             }
         }
