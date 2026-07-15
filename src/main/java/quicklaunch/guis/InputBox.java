@@ -226,7 +226,7 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
                         "git:", JOptionPane.ERROR_MESSAGE);
             } else {
                 final GitStatusBox statusBox = new GitStatusBox();
-                statusBox.setStatus("Preparing show/" + showId + "...");
+                statusBox.setStatus("Preparing branch " + showId + "...");
                 new SwingWorker<String, String>() {
                     protected String doInBackground() throws Exception {
                         GitShowSetup setup = new GitShowSetup(

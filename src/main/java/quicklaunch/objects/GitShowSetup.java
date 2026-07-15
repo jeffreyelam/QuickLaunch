@@ -54,7 +54,7 @@ public class GitShowSetup {
             throw new GitSetupException("MYS-Shows repo not found at " + this.repoDir.getPath());
         }
 
-        String branchName = "show/" + showId;
+        String branchName = showId;
 
         listener.onStatus("Checking working tree...");
         GitResult status = runGit("status", "--porcelain");
