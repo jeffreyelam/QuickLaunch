@@ -27,30 +27,27 @@ public class Directory extends HashMap<String, Shortcut> implements Serializable
     }
 
     public void openShortcut(String shortcut, String currentEnvironment) throws IOException {
-        try {
-            if (get(shortcut).getFile() != null)
-            {
-                if(get(shortcut).getIsEnvironmentSpecific())
-                {
-                    String environmentSpecificPath = get(shortcut).getFile().getPath();
-                    environmentSpecificPath = environmentSpecificPath.replace("\\", "/");
-                    environmentSpecificPath = environmentSpecificPath.replace(this.productionPath, "");
-                    environmentSpecificPath = environmentSpecificPath.replace(this.stagingPath, "");
-                    environmentSpecificPath = environmentSpecificPath.replace(this.testPath, "");
-                    environmentSpecificPath = environmentSpecificPath.replace(this.developmentPath, "");
-                    environmentSpecificPath = environmentSpecificPath.replace(this.localPath, "");
-                    File environmentSpecificFile = new File(currentEnvironment + environmentSpecificPath);
-                    openFile(environmentSpecificFile);
-                }
-                else
-                {
-                    openFile(get(shortcut).getFile());
-                }
-            } else if (get(shortcut).getURL() != null) {
-                openWebpage(get(shortcut).getURL());
+        Shortcut target = get(shortcut);
+        if (target == null) {
+            throw new IOException("Shortcut not found: " + shortcut);
+        }
+        if (target.getFile() != null) {
+            if (target.getIsEnvironmentSpecific()) {
+                String environmentSpecificPath = target.getFile().getPath();
+                environmentSpecificPath = environmentSpecificPath.replace("\\", "/");
+                environmentSpecificPath = environmentSpecificPath.replace(this.productionPath, "");
+                environmentSpecificPath = environmentSpecificPath.replace(this.stagingPath, "");
+                environmentSpecificPath = environmentSpecificPath.replace(this.testPath, "");
+                environmentSpecificPath = environmentSpecificPath.replace(this.developmentPath, "");
+                environmentSpecificPath = environmentSpecificPath.replace(this.localPath, "");
+                openFile(new File(currentEnvironment + environmentSpecificPath));
+            } else {
+                openFile(target.getFile());
             }
-        } catch (IOException|NullPointerException e) {
-            System.out.println("Shortcut not found!");
+        } else if (target.getURL() != null) {
+            openWebpage(target.getURL());
+        } else {
+            throw new IOException("Shortcut '" + shortcut + "' has no file or URL.");
         }
     }
 

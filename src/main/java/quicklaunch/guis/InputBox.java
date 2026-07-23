@@ -32,6 +32,11 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import java.awt.Font;
+import java.util.ArrayList;
+import java.util.List;
 import quicklaunch.objects.Directory;
 import quicklaunch.objects.GitShowSetup;
 import quicklaunch.objects.Shortcut;
@@ -83,6 +88,37 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
 
     private Desktop desk;
 
+    private JLabel statusLabel;
+
+    private javax.swing.Timer statusTimer;
+
+    private final List<String> commandHistory = new ArrayList<String>();
+
+    private int historyIndex = 0;
+
+    /** A file-system / network operation that may block or fail; returns an optional
+     *  status message to show on success (or null), and may throw to report failure. */
+    private interface IoTask {
+        String run() throws Exception;
+    }
+
+    private static final String[][] COMMANDS = {
+        { "help / ?", "Show this list of commands" },
+        { "local / dev / test / staging (stage) / production / imts", "Switch the active environment" },
+        { "add", "Add a shortcut (name + file path or URL)" },
+        { "delete", "Delete a shortcut by name" },
+        { "shortcuts", "List saved shortcuts (double-click opens, right-click manages)" },
+        { "root", "Open the current environment's root folder" },
+        { "core", "Open the current environment's mys/ folder" },
+        { "exh", "(local only) Open MYS-ExhDashboard" },
+        { "git:<showId>", "Set up a MYS-Shows branch for a show and copy staging files" },
+        { "ip:<address>", "Open a whois lookup for an IP/host in the browser" },
+        { "<shortcut name>", "Open a saved shortcut" },
+        { "<any text>", "Fuzzy-search folders in the current environment and open a match" },
+        { "a,b,c", "Run several commands at once, separated by commas" },
+        { "exit", "Save shortcuts and quit QuickLaunch" },
+    };
+
     public InputBox() {
         try {
             this.shortCutMap = loadDirectory();
@@ -108,8 +144,13 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
         this.desk = Desktop.getDesktop();
         centerPanel.add(this.environmentLabel);
         centerPanel.add(this.userInput);
+        this.statusLabel = new JLabel(" ");
+        this.statusLabel.setFont(this.statusLabel.getFont().deriveFont(Font.PLAIN, 11.0F));
+        JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        statusPanel.add(this.statusLabel);
         Box theBox = Box.createVerticalBox();
         theBox.add(centerPanel);
+        theBox.add(statusPanel);
         add(theBox);
         styleThisDialog();
         addShortcutListener();
@@ -126,7 +167,7 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
     }
 
     private void styleThisDialog() {
-        setSize(275, 45);
+        setSize(275, 68);
         setLocationRelativeTo(null);
         setResizable(false);
         getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 4));
@@ -160,16 +201,18 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
             System.exit(0);
             closeDialog();
         }
+        else if (shortcut.equalsIgnoreCase("help") || shortcut.equals("?"))
+        {
+            showHelpDialog();
+        }
         else if (shortcut.equalsIgnoreCase("exh") && this.environment.equalsIgnoreCase("local"))
         {
-            try
-            {
-                this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/MYS-ExhDashboard");
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            openAsync("Open ExhDashboard", new IoTask() {
+                public String run() throws Exception {
+                    InputBox.this.shortCutMap.openDirectory("C:/inetpub/wwwroot/mys/MYS-ExhDashboard");
+                    return null;
+                }
+            });
         }
         else if (shortcut.equalsIgnoreCase("add"))
         {
@@ -182,7 +225,8 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
                             String newFilePath = shortcutData.shortcutPath.getText();
 
 
-                            InputBox.this.shortCutMap.addShortCut(shortcutData.shortcut.getText(), (newFilePath.indexOf("http") < 0) ? new File(newFilePath.replace("\"", "")) : null, (newFilePath.indexOf("http") == 0) ? new URL(newFilePath) : null, shortcutData.isEnvironmentSpecific.isSelected());
+                            boolean isUrl = newFilePath.startsWith("http");
+                            InputBox.this.shortCutMap.addShortCut(shortcutData.shortcut.getText(), isUrl ? null : new File(newFilePath.replace("\"", "")), isUrl ? new URL(newFilePath) : null, shortcutData.isEnvironmentSpecific.isSelected());
                             InputBox.this.saveDirectory(InputBox.this.shortCutMap);
                         } catch (IOException e1) {
                             e1.printStackTrace();
@@ -266,7 +310,9 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
                         if (SwingUtilities.isLeftMouseButton(evt))
                             try {
                                 InputBox.this.shortCutMap.openShortcut(shortcutSelected, InputBox.this.filePath);
-                            } catch (IOException|NullPointerException|IllegalArgumentException iOException) {}
+                            } catch (IOException|NullPointerException|IllegalArgumentException ex) {
+                                InputBox.this.showStatus("Couldn't open '" + shortcutSelected + "': " + ex.getMessage());
+                            }
                     } else if (SwingUtilities.isRightMouseButton(evt)) {
                         InputBox.this.createPopupMenu(shortcutSelected, evt);
                     }
@@ -290,90 +336,181 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
             this.filePath = this.stagingPath;
             this.environment = "staging";
         } else if (shortcut.equalsIgnoreCase("production")) {
-            this.environmentLabel.setText("**PROD**   ");
-            this.filePath = this.productionPath;
-            this.environment = "production";
+            int choice = JOptionPane.showConfirmDialog(this,
+                    "Switch to PRODUCTION? Actions will target the live production share.",
+                    "Confirm PRODUCTION", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            if (choice == JOptionPane.YES_OPTION) {
+                this.environmentLabel.setText("**PROD**   ");
+                this.filePath = this.productionPath;
+                this.environment = "production";
+            }
         } else if (shortcut.equalsIgnoreCase("imts")) {
             this.environmentLabel.setText("IMTS   ");
             this.filePath = this.imtsPath;
             this.environment = "imts";
         } else if (shortcut.equalsIgnoreCase("root"))
         {
-            try
-            {
-                this.shortCutMap.openDirectory(this.filePath);
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            openAsync("Open root", new IoTask() {
+                public String run() throws Exception {
+                    InputBox.this.shortCutMap.openDirectory(InputBox.this.filePath);
+                    return null;
+                }
+            });
         } else if (shortcut.equalsIgnoreCase("core"))
         {
-             try
-             {
-                this.shortCutMap.openDirectory(this.filePath + "mys/");
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            openAsync("Open core", new IoTask() {
+                public String run() throws Exception {
+                    InputBox.this.shortCutMap.openDirectory(InputBox.this.filePath + "mys/");
+                    return null;
+                }
+            });
         } else if (this.shortCutMap.keyExists(shortcut.toLowerCase())) {
-            try {
-                this.shortCutMap.openShortcut(shortcut.toLowerCase(), this.filePath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            final String key = shortcut.toLowerCase();
             hideThis();
+            openAsync("Open '" + key + "'", new IoTask() {
+                public String run() throws Exception {
+                    InputBox.this.shortCutMap.openShortcut(key, InputBox.this.filePath);
+                    return null;
+                }
+            });
         } else {
-            try {
-                if(this.environment.equalsIgnoreCase("local"))
-                {
-                    boolean found = false;
-                    File sharedFolder = new File(this.filePath + "MYS-Shared/");
-                    File[] localSharedFolders = sharedFolder.listFiles();
-                    File showsFolder = new File(this.filePath + "MYS-Shows/");
-                    File[] localShowFolders = showsFolder.listFiles();
-
-                    for (File file : localSharedFolders) {
-                        // Output the path of each file
-                        if (file.getPath().toLowerCase().contains(shortcut.toLowerCase())) {
-                            this.shortCutMap.openDirectory(file.getPath());
-                            found = true;
+            final String query = shortcut.toLowerCase();
+            openAsync("Open '" + shortcut + "'", new IoTask() {
+                public String run() throws Exception {
+                    if (InputBox.this.environment.equalsIgnoreCase("local")) {
+                        boolean found = InputBox.this.openMatches(
+                                InputBox.this.filePath + "MYS-Shared/", query);
+                        if (!found) {
+                            found = InputBox.this.openMatches(
+                                    InputBox.this.filePath + "MYS-Shows/", query);
                         }
-                    }
-
-                    if (!found) {
-                        for (File file : localShowFolders) {
-                            // Output the path of each file
-                            if (file.getPath().toLowerCase().contains(shortcut.toLowerCase())) {
-                                this.shortCutMap.openDirectory(file.getPath());
-                                found = true;
-                            }
+                        if (!found) {
+                            return "No match for '" + query + "' in local MYS-Shared / MYS-Shows.";
                         }
+                        return null;
                     }
+                    try {
+                        InputBox.this.shortCutMap.openDirectory(
+                                InputBox.this.filePath + "MYS_Shared/" + query);
+                    } catch (IOException e) {
+                        InputBox.this.shortCutMap.openDirectory(InputBox.this.filePath + query);
+                    }
+                    return null;
                 }
-                else {
-                    this.shortCutMap.openDirectory(this.filePath + "MYS_Shared/" + shortcut.toLowerCase());
-                }
-            } catch (IOException e) {
-                try {
-                    this.shortCutMap.openDirectory(this.filePath + shortcut.toLowerCase());
-                } catch (IOException xe) {
-                    xe.printStackTrace();
-                }
+            });
+        }
+    }
+
+    /** Opens every folder under {@code folderPath} whose path contains {@code query}.
+     *  Returns true if at least one was opened. Throws if the folder can't be listed
+     *  (e.g. an unmounted / unreachable network share), instead of NPE-ing on null. */
+    private boolean openMatches(String folderPath, String query) throws IOException {
+        File[] entries = new File(folderPath).listFiles();
+        if (entries == null) {
+            throw new IOException("Share unavailable or not a folder: " + folderPath);
+        }
+        boolean found = false;
+        for (File file : entries) {
+            if (file.getPath().toLowerCase().contains(query)) {
+                this.shortCutMap.openDirectory(file.getPath());
+                found = true;
             }
         }
+        return found;
+    }
+
+    /** Runs a blocking file/network task off the Event Dispatch Thread so a slow or
+     *  unreachable share can't freeze the UI, and surfaces success/failure in the
+     *  status line. */
+    private void openAsync(final String description, final IoTask task) {
+        new SwingWorker<String, Void>() {
+            protected String doInBackground() throws Exception {
+                return task.run();
+            }
+
+            protected void done() {
+                try {
+                    String message = get();
+                    if (message != null) {
+                        showStatus(message);
+                    }
+                } catch (Exception e) {
+                    Throwable cause = (e.getCause() != null) ? e.getCause() : e;
+                    showStatus(description + " failed: " + cause.getMessage());
+                }
+            }
+        }.execute();
+    }
+
+    /** Shows a short, auto-clearing message in the status line under the input. */
+    private void showStatus(String message) {
+        this.statusLabel.setText((message == null || message.length() == 0) ? " " : message);
+        if (this.statusTimer == null) {
+            this.statusTimer = new javax.swing.Timer(4000, new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    InputBox.this.statusLabel.setText(" ");
+                }
+            });
+            this.statusTimer.setRepeats(false);
+        }
+        this.statusTimer.restart();
+    }
+
+    private void showHelpDialog() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("QuickLaunch (Ctrl+J to focus; Up/Down for history)\n\n");
+        for (String[] command : COMMANDS) {
+            sb.append(command[0]).append("\n    ").append(command[1]).append("\n\n");
+        }
+        JTextArea area = new JTextArea(sb.toString(), 18, 64);
+        area.setEditable(false);
+        area.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        area.setCaretPosition(0);
+        JScrollPane scroll = new JScrollPane(area);
+        scroll.setPreferredSize(new Dimension(560, 380));
+        JOptionPane.showMessageDialog(this, scroll, "QuickLaunch - Commands",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void addShortcutListener() {
         this.userInput.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == 10 && InputBox.this.userInput.getText().length() > 0) {
-                    String[] shortcutList = InputBox.this.userInput.getText().split(",");
+                int code = e.getKeyCode();
+                if (code == KeyEvent.VK_ENTER && InputBox.this.userInput.getText().length() > 0) {
+                    String raw = InputBox.this.userInput.getText();
+                    InputBox.this.commandHistory.add(raw);
+                    InputBox.this.historyIndex = InputBox.this.commandHistory.size();
+                    String[] shortcutList = raw.split(",");
                     for (int i = 0; i < shortcutList.length; i++)
                         InputBox.this.tryShortcut(shortcutList[i]);
                     InputBox.this.userInput.setText("");
+                } else if (code == KeyEvent.VK_UP) {
+                    InputBox.this.recallHistory(-1);
+                    e.consume();
+                } else if (code == KeyEvent.VK_DOWN) {
+                    InputBox.this.recallHistory(1);
+                    e.consume();
                 }
             }
         });
+    }
+
+    /** Cycles the input field through previously entered commands. */
+    private void recallHistory(int direction) {
+        if (this.commandHistory.isEmpty()) {
+            return;
+        }
+        int newIndex = this.historyIndex + direction;
+        if (newIndex < 0) {
+            newIndex = 0;
+        }
+        if (newIndex >= this.commandHistory.size()) {
+            this.historyIndex = this.commandHistory.size();
+            this.userInput.setText("");
+            return;
+        }
+        this.historyIndex = newIndex;
+        this.userInput.setText(this.commandHistory.get(newIndex));
     }
 
     private void makeJFrameMove() {
@@ -417,7 +554,7 @@ public class InputBox extends JDialog implements IntellitypeListener, HotkeyList
                 try {
                     InputBox.this.shortCutMap.openShortcut(scSelected, InputBox.this.filePath);
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    InputBox.this.showStatus("Couldn't open '" + scSelected + "': " + e1.getMessage());
                 }
             }
         });
